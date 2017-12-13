@@ -17,9 +17,15 @@ use PicoFeed\PicoFeedException;
 class RssShell extends Shell
 {
 
-   private $sites =[
+    private $sites = [
+        'http://www.pafi.hu/',
+        'https://www.palyazat.gov.hu/',
+        'http://eupalyazatiportal.hu/',
+        'https://palyazatmenedzser.hu/',
+        'http://palyazatok.org/'
+    ];
 
-        ];
+    private $feeds = [];
 
     public function initialize()
     {
@@ -28,22 +34,29 @@ class RssShell extends Shell
 
     public function main()
     {
-
-
-        try {
-
-            $reader = new Reader;
-            $resource = $reader->download('palyazatok.org');
-
-            $feeds = $reader->find(
-                $resource->getUrl(),
-                $resource->getContent()
-            );
-
-            print_r($feeds);
-        } catch (PicoFeedException $e) {
-            // Do something...
+        $this->loadFeeds();
+        foreach($this->sites as $site){
+            var_dump($this->feeds[$site]);
         }
+    }
 
+    private function loadFeeds()
+    {
+        foreach ($this->sites as $site) {
+            try {
+
+                $reader = new Reader;
+                $resource = $reader->download($site);
+
+                $feeds = $reader->find(
+                    $resource->getUrl(),
+                    $resource->getContent()
+                );
+
+                $this->feeds[$site] = $feeds;
+            } catch (PicoFeedException $e) {
+                // Do something...
+            }
+        }
     }
 }
