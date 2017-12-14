@@ -12,6 +12,7 @@ namespace App\Shell;
 use Cake\Console\Shell;
 use PicoFeed\Reader\Reader;
 use PicoFeed\PicoFeedException;
+use PicoFeed\Parser\Feed;
 
 
 class RssShell extends Shell
@@ -24,8 +25,6 @@ class RssShell extends Shell
         'https://palyazatmenedzser.hu/',
         'http://palyazatok.org/'
     ];
-
-    private $feeds = [];
 
     public function initialize()
     {
@@ -50,24 +49,34 @@ class RssShell extends Shell
                     $resource->getContent(),
                     $resource->getEncoding()
                 );
-                $feed = $parser->execute(); //RSS feed XML
-                if($this->Rssfeeds->find('ByGlobalid',['globalId' => $feed->getId()])->toArray() == []) {
-                    $rssFeed = $this->Rssfeeds->newEntity(); //Rssfeed model
+                $feed = $parser->execute(); //PicoFeed\Parser\Feed;
+                if ($this->Rssfeeds->find('ByGlobalid', ['globalId' => $feed->getId()])->first() == null) {
+                    $rssFeed = $this->Rssfeeds->newEntity(); //App\Model\Entity\RssFeed
                     $rssFeed->globalid = $feed->getId();
-                    $rssFeed->title =  $feed->getTitle();
+                    $rssFeed->title = $feed->getTitle();
                     $rssFeed->feedurl = $feed->getFeedUrl();
                     $rssFeed->siteurl = $feed->getSiteUrl();
                     $rssFeed->date = $feed->getDate();
                     $rssFeed->description = $feed->getDescription();
                     $rssFeed->logo = $feed->getLogo();
                     $this->Rssfeeds->save($rssFeed);
-                    $this->feeds[$site] = $feed;
                 } else {
-                    //debug($this->Rssfeeds->find('ByGlobalid', ['globalId' => $feed->getId()])->first());
+                    $rssFeed = $this->Rssfeeds->find('ByGlobalid', ['globalId' => $feed->getId()])->first();
+                    $oldDate = $rssFeed->date;
+                    $newDate = $feed->getDate();
+                    if ($newDate > $oldDate) {
+                        $rssFeed->date = $newDate;
+                        $this->Rssfeeds->save($rssFeed);
+                    }
                 }
             } catch (PicoFeedException $e) {
                 // Do something...
             }
         }
+    }
+
+    private function getFeedItems(Feed $feed, int $rssFeedId)
+    {
+
     }
 }
