@@ -30,14 +30,12 @@ class RssShell extends Shell
     public function initialize()
     {
         parent::initialize();
+        $this->loadModel('Rssfeeds');
     }
 
     public function main()
     {
         $this->loadFeeds();
-        foreach($this->sites as $site){
-            var_dump($this->feeds[$site]);
-        }
     }
 
     private function loadFeeds()
@@ -46,14 +44,24 @@ class RssShell extends Shell
             try {
 
                 $reader = new Reader;
-                $resource = $reader->download($site);
-
-                $feeds = $reader->find(
+                $resource = $reader->discover($site);
+                $parser = $reader->getParser(
                     $resource->getUrl(),
-                    $resource->getContent()
+                    $resource->getContent(),
+                    $resource->getEncoding()
                 );
 
-                $this->feeds[$site] = $feeds;
+                $feed = $parser->execute(); //RSS feed XML
+                $rssFeed = $this->Rssfeeds->newEntity(); //Rssfeed modell
+                $rssFeed->globalid = $feed->getId();
+                $rssFeed->title =  $feed->getTitle();
+                $rssFeed->feedurl = $feed->getFeedUrl();
+                $rssFeed->siteurl = $feed->getSiteUrl();
+                $rssFeed->date = $feed->getDate();
+                $rssFeed->description = $feed->getDescription();
+                $rssFeed->logo = $feed->getLogo();
+                $this->Rssfeeds->save($rssFeed);
+                $this->feeds[$site] = $feed;
             } catch (PicoFeedException $e) {
                 // Do something...
             }
