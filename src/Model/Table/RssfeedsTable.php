@@ -93,4 +93,9 @@ class RssfeedsTable extends Table
 
         return $rules;
     }
+
+    public function findByGlobalId(Query $query, array $options)
+    {
+        return $query->where(['globalid' => $options['globalId']]);
+    }
 }

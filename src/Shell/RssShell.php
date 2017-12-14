@@ -50,18 +50,21 @@ class RssShell extends Shell
                     $resource->getContent(),
                     $resource->getEncoding()
                 );
-
                 $feed = $parser->execute(); //RSS feed XML
-                $rssFeed = $this->Rssfeeds->newEntity(); //Rssfeed modell
-                $rssFeed->globalid = $feed->getId();
-                $rssFeed->title =  $feed->getTitle();
-                $rssFeed->feedurl = $feed->getFeedUrl();
-                $rssFeed->siteurl = $feed->getSiteUrl();
-                $rssFeed->date = $feed->getDate();
-                $rssFeed->description = $feed->getDescription();
-                $rssFeed->logo = $feed->getLogo();
-                $this->Rssfeeds->save($rssFeed);
-                $this->feeds[$site] = $feed;
+                if($this->Rssfeeds->find('ByGlobalid',['globalId' => $feed->getId()])->toArray() == []) {
+                    $rssFeed = $this->Rssfeeds->newEntity(); //Rssfeed model
+                    $rssFeed->globalid = $feed->getId();
+                    $rssFeed->title =  $feed->getTitle();
+                    $rssFeed->feedurl = $feed->getFeedUrl();
+                    $rssFeed->siteurl = $feed->getSiteUrl();
+                    $rssFeed->date = $feed->getDate();
+                    $rssFeed->description = $feed->getDescription();
+                    $rssFeed->logo = $feed->getLogo();
+                    $this->Rssfeeds->save($rssFeed);
+                    $this->feeds[$site] = $feed;
+                } else {
+                    //debug($this->Rssfeeds->find('ByGlobalid', ['globalId' => $feed->getId()])->first());
+                }
             } catch (PicoFeedException $e) {
                 // Do something...
             }
