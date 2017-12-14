@@ -30,6 +30,7 @@ class RssShell extends Shell
     {
         parent::initialize();
         $this->loadModel('Rssfeeds');
+        $this->loadModel('Rssfeeditems');
     }
 
     public function main()
@@ -69,6 +70,7 @@ class RssShell extends Shell
                         $this->Rssfeeds->save($rssFeed);
                     }
                 }
+                $this->getFeedItems($feed, $rssFeed->id);
             } catch (PicoFeedException $e) {
                 // Do something...
             }
@@ -77,6 +79,18 @@ class RssShell extends Shell
 
     private function getFeedItems(Feed $feed, int $rssFeedId)
     {
-
+        foreach ($feed->items as $item) {
+            $rssFeedItem = $this->Rssfeeditems->newEntity();
+            $rssFeedItem->rssfeed_id = $rssFeedId;
+            $rssFeedItem->globalid = $item->getId();
+            $rssFeedItem->title = $item->getTitle();
+            $rssFeedItem->url = $item->getUrl();
+            $rssFeedItem->author = $item->getAuthor();
+            $rssFeedItem->date = $item->getDate();
+            $rssFeedItem->publisheddate = $item->getPublishedDate();
+            $rssFeedItem->updateddate = $item->getUpdatedDate();
+            $rssFeedItem->content = $item->getContent();
+            $this->Rssfeeditems->save($rssFeedItem);
+        }
     }
 }
