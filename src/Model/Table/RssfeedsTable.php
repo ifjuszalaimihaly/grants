@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Model\Table;
 
 use Cake\ORM\Query;
@@ -33,6 +34,9 @@ class RssfeedsTable extends Table
         $this->setTable('rssfeeds');
         $this->setDisplayField('title');
         $this->setPrimaryKey('id');
+        $this->hasMany('Rssitems', [
+            'foreignKey' => 'rssfeed_id'
+        ]);
     }
 
     /**

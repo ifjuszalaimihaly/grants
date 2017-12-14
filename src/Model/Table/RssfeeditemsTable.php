@@ -40,6 +40,11 @@ class RssfeeditemsTable extends Table
             'foreignKey' => 'rssfeed_id',
             'joinType' => 'INNER'
         ]);
+        $this->hasMany('Rsscategories', [
+            'foreignKey' => 'rssitem_id',
+            'targetForeignKey' => 'rsscategory_id',
+            'joinTable' => 'rsscategories_rssfeedintems'
+        ]);
     }
 
     /**

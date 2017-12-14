@@ -33,6 +33,11 @@ class RsscategoriesTable extends Table
         $this->setTable('rsscategories');
         $this->setDisplayField('name');
         $this->setPrimaryKey('id');
+        $this->belongsToMany('Rssfeeditems', [
+            'foreignKey' => 'rssitem_id',
+            'targetForeignKey' => 'rsscategory_id',
+            'joinTable' => 'rsscategories_rssfeedintems'
+        ]);
     }
 
     /**
